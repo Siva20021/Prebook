@@ -1,22 +1,21 @@
-import React from 'react'
+import React from "react";
+import Header from "../components/Header"
+
 import {Link} from "react-router-dom"
-import Footer from '../components/Footer'
-import Header from '../components/Header'
 function Front() {
   return (
-    <div className='p-0'>
+    <>
+      <div className="absolute flex top-0 left-0 height-[20%] w-[100%] ">
+        
         <Header/>
-        <div className="bg-[#2E0249] pb-[100px] h-[1000px]">
-            <div className="flex justify-center items-center ">
-                <p className='text-[50px] mt-[20%] text-orange-600 font-bold m-[20px] animate-bounce'>Welcome to Prebook</p>
-            </div>
-            <div>
-                <button className='ml-[50%] text-[#fff]'><Link to="/movies">MoviesPage</Link></button>
-            </div>
+        <div className="pt-[20%] pl-[30%]">
+          <h1 className="animate-bounce text-[64px] ">Welcome to Prebook</h1>
+          <button className="p-2 ml-[50%] bg-green-400 font-bold text-lg rounded-xl mt-4 text-black hover:scale-110"><Link to="/movies">Movies</Link></button>
         </div>
         
-    </div>
-  )
+      </div>
+    </>
+  );
 }
 
-export default Front
+export default Front;
