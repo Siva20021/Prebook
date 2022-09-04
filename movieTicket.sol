@@ -12,6 +12,12 @@ contract NFT is ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
+    address payable manager=payable(0x61B8A9baFda51De880254d509Aa6B3f12920df25);
+    address public customer;
+
+    receive() external payable {}
+
+
     struct Ticket {
         address owner;
         uint256 seatNo ;
@@ -28,60 +34,58 @@ contract NFT is ERC721URIStorage {
         string movie ;
         string showTime ;
         string showDate ;
+        mapping(uint256=>bool) seatsNotAvail;
     }
 
-    
-
-    uint256 public movieID ;
     /// movie id  => movie details
     mapping(uint256 => Movie) movies;
 
-    /// intializing the NFT ERC721
-    constructor() ERC721("Movie NFT", "MNFT") {}
+    /// intializing the NFT ERC721 and making the manager to the person who deployed it i.e. me :)
+    constructor() ERC721("Movie NFT", "MNFT") {
+        movies[0].movie="Brahmastra";
+        movies[0].showTime="9:00 PM";
+        movies[0].showDate="06/09/2022";
+        movies[1].movie="Thor: Love and Thunder";
+        movies[1].showTime="11:00 PM";
+        movies[1].showDate="08/09/2022";
+        movies[2].movie="Avatar: The Way of Water";
+        movies[2].showTime="11:00 AM";
+        movies[2].showDate="11/09/2022";
+        movies[3].movie="Black Adam";
+        movies[3].showTime="5:00 PM";
+        movies[3].showDate="08/09/2022";
+    }
+
+    function getter(uint movieId) public view returns(string memory name)
+    {
+        return movies[movieId].movie;
+    }
+
+
+    //It will return true if that particular seat is not available
+    function getSeatsNotAvail(uint _movieId, uint _seatNo) public view returns(bool notAvail) {
+        return movies[_movieId].seatsNotAvail[_seatNo];
+    }
 
 
     function generateNFT(uint256 tokenId) public view returns (string memory) {
-        require(tokenId==0);
         bytes memory svg = abi.encodePacked(
             '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">',
             '<style>.base { fill: white; font-family: Algerian; font-size: 15px; }</style>',
-            '<style>.head { fill: orange; font-family: Algerian; font-size: 30px; }</style>',
+            '<style>.head { fill: orange; font-family: Algerian; font-size: 25px; }</style>',
             '<rect width="100%" height="100%" fill="black"/>',
-            '<text x="50%" y="78%" class="head" dominant-baseline="middle" text-anchor="middle">',
-            "Brahmastra ",
+            '<text x="50%" y="33%" class="head" dominant-baseline="middle" text-anchor="middle">',
+            getMovieName(tokenId),
             '</text>',
-            '<text x="49%" y="88%" class="base" dominant-baseline="middle" text-anchor="middle">',
-            "Seat 38 ",
+            '<text x="49%" y="53%" class="base" dominant-baseline="middle" text-anchor="middle">',
+            "Seat: ",
+            getSeat(tokenId),
             '</text>',
-            '<text x="49%" y="94%" class="base" dominant-baseline="middle" text-anchor="middle">',
+            '<text x="49%" y="69%" class="base" dominant-baseline="middle" text-anchor="middle">',
             "Screen  2",
             '</text>',
-            '<image width="350" height="250" xlink:href="https://stat1.bollywoodhungama.in/wp-content/uploads/2022/04/Brahmastra.jpeg"  />'
             '</svg>'
         );
-            
-// '<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" viewBox="0 0 350 350">',
-//             '<style>.base { fill: white; font-family: Algerian; font-size: 15px; }</style>',
-//             '<style>.head { fill: orange; font-family: Algerian; font-size: 30px; }</style>',
-//             '<rect width="100%" height="100%" fill="black"/>',
-//             '<text x="50%" y="78%" class="head" dominant-baseline="middle" text-anchor="middle">',
-//             Brahmastra
-//             </text>,
-//             '<text x="49%" y="88%" class="base" dominant-baseline="middle" text-anchor="middle">
-//             Seat No. 38
-//             </text>,
-// '<text x="49%" y="94%" class="base" dominant-baseline="middle" text-anchor="middle">
-//             Screen 2
-//             </text>
-        
-//             <image width="350" height="250" xlink:href="https://stat1.bollywoodhungama.in/wp-content/uploads/2022/04/Brahmastra.jpeg"  />,
-            
-            
-            
-            
-//             '</svg>'
-//         );
-
         return
             string(
                 abi.encodePacked(
@@ -124,11 +128,13 @@ contract NFT is ERC721URIStorage {
     }
 
      /// to mint a on chain NFT using mint and setting a token URI for the svg
-    function mint(uint256 _movieId,uint256 _seatNo) public returns(uint256) {
+    function mint(uint256 _movieId,uint256 _seatNo) public payable returns(uint256) {
+
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         _safeMint(msg.sender, newItemId);
         Movie storage _movie = movies[_movieId];
+        movies[_movieId].seatsNotAvail[_seatNo]=true;
         tickets[newItemId] = Ticket(
             msg.sender,
             _seatNo,
@@ -139,19 +145,6 @@ contract NFT is ERC721URIStorage {
         _setTokenURI(newItemId, getTokenURI(newItemId));
         return(newItemId);
     
-    }
-
-    function createMovie(string memory _name,string memory _showTime , string memory _showDate) public{
-        movies[movieID] = Movie(
-            _name , 
-            _showTime,
-            _showDate
-        ) ;
-        movieID += 1 ;
-    }
-
-    function getMovie(uint256 _movieId) public view returns(Movie memory){
-        return movies[_movieId];
     }
     
 }
