@@ -20,13 +20,13 @@ const MovieListing = () => {
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 m-8">
         {
-            movies.map((movie,i) => (
+            movies.map((movie,index) => (
                 <MovieCard 
                 name={movie[1].title} 
                 backdrop={movie[1].backdrop_path} 
                 overview={movie[1].overview}  
                 id={movie[1].id}
-                key={i}/>
+                key={index}/>
             ))
         }
         
