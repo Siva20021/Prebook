@@ -65,7 +65,7 @@ body {
 }
 
 .Cinema .screen {
-  height: 70px;
+  height: 100px;
   background: white;
   width: 100%;
   transform: rotateX(-30deg) scale(1.1);

@@ -4,9 +4,9 @@ import { useParams } from "react-router-dom";
 import '../styles/seatStyle.css'
 import clsx from 'clsx'
 import Web3 from 'web3';
-var movieID = "";
-var seatNo = "";
-var currentaddress = "";
+var movieID;
+var seatNo;
+var currentaddress = "0x3871501819066e22032493d3FDFfc540d71365f1" ;
 const contractAddress="0xdA2B1257C47348264C0D71e00C2A26F16dd0CE3C";
 
 const dappContractABI = [
@@ -559,6 +559,7 @@ const SeatBooking = () => {
   const [info, setInfo] = useState("");
   const { movieid } = useParams();
   movieID = movieid;
+  console.log(movieID)
   const url = `https://api.themoviedb.org/3/movie/${movieID}?api_key=${process.env.REACT_APP_API_KEY}&language=en-US`;
   const getMovieDetails = () =>
     axios.get(url).then(function (response) {
@@ -599,8 +600,9 @@ const SeatBooking = () => {
 function Movies({ movie, onChange }) {
   return (
     <div className="Movies">
-      <label htmlFor="movie">Pick a movie</label>
-      <select
+      <p className="text-2xl">{movie.name}</p>
+      {/* <label htmlFor="movie">Pick a movie</label> */}
+      {/* <select
         id="movie"
         value={movie.name}
         onChange={e => {
@@ -612,7 +614,8 @@ function Movies({ movie, onChange }) {
             {movie.name} (${movie.price})
           </option>
         ))}
-      </select>
+      </select> */}
+
     </div>
   )
 }
@@ -649,23 +652,27 @@ function Cinema({ movie, selectedSeats, onSelectedSeatsChange }) {
     if (window.ethereum) {
       console.log("This is DAppp Environment");
       var accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      var currentaddress = accounts[0];
+      console.log(accounts)
+      currentaddress = accounts[0];
+      marketplaceContract.methods.mint(movieID, 1).send({ from: accounts[0] }).then(() => {
+        alert("stored success!");
+      }).catch((err) => {
+        console.log(err);
+      })
     } else {
       console.log("Please connect with metamask");
     }
   }
+  // console.log(movieID,seatNo,accounts[0])
+  const nftMint = () => {  
+}
   
-  marketplaceContract.methods.mint(movieID, seatNo).send({ from: currentaddress }).then(() => {
-    alert("stored success!");
-  }).catch((err) => {
-    console.log(err);
-  })
-  
-  let seatsNotAvail = marketplaceContract.methods.getSeatsNotAvail(movieID,seatNo).send({ from: currentaddress }).then((res) => {
-    console.log("res");
-  }).catch((err) => {
-    console.log(err);
-  })
+  // let seatsNotAvail = marketplaceContract.methods.getSeatsNotAvail(1,2).send({ from: currentaddress }).then((res) => {
+  // let seatsNotAvail = marketplaceContract.methods.getSeatsNotAvail(movieID,seatNo).send({ from: currentaddress }).then((res) => {
+  //   console.log("res");
+  // }).catch((err) => {
+  //   console.log(err);
+  // })
 
   return (
     <div className="Cinema">
